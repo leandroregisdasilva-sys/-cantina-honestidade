@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Novo usuário' if novo else 'Alterar usuário' }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <a class="voltar" href="{{ url_for('admin.usuarios') }}">← Voltar para usuários</a>
+    <h1>{{ 'Novo usuário' if novo else 'Alterar usuário' }}</h1>
+    <p class="subtitulo">Campos com * são obrigatórios.</p>
+  </div>
+</div>
+<form class="cartao formulario" method="post" novalidate data-validar
+      action="{{ url_for('admin.usuario_novo') if novo else url_for('admin.usuario_editar', id_usuario=usuario.id_usuario) }}">
+  {% include "_campos_usuario.html" %}
+  <div class="rodape-form">
+    <a class="botao botao-texto" href="{{ url_for('admin.usuarios') }}">Cancelar</a>
+    <button class="botao botao-primario" type="submit">{{ 'Cadastrar usuário' if novo else 'Salvar alterações' }}</button>
+  </div>
+</form>
+{% endblock %}

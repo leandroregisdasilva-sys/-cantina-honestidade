@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% block titulo %}Estoque{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1>Estoque</h1>
+    <p class="subtitulo">Registre cada reposição. A venda dá baixa sozinha.</p>
+  </div>
+</div>
+<div class="duas-colunas">
+  <form class="cartao formulario" method="post" novalidate data-validar>
+    <h2>Nova entrada</h2>
+    <div class="campo {% if erros.get('id_produto') %}campo-erro{% endif %}">
+      <label for="id_produto">Produto *</label>
+      <select id="id_produto" name="id_produto" required aria-describedby="id_produto-msg">
+        <option value="">Selecione...</option>
+        {% for p in produtos %}
+          <option value="{{ p.id_produto }}" {% if formulario.get('id_produto') == p.id_produto|string %}selected{% endif %}>{{ p.descricao }} (atual: {{ p.quantidade_estoque }})</option>
+        {% endfor %}
+      </select>
+      <small id="id_produto-msg" class="{{ 'msg-erro' if erros.get('id_produto') else 'msg-ajuda' }}">{{ erros.get('id_produto') or 'Só produtos ativos.' }}</small>
+    </div>
+    {{ campo('quantidade', 'Quantidade *', erros, formulario.get('quantidade'), ajuda='Unidades que chegaram, de 1 a ' ~ qtd_max ~ '.', extra='required inputmode="numeric" maxlength="4" data-mascara="inteiro" placeholder="0" data-min="1" data-max="' ~ qtd_max ~ '"') }}
+    <div class="rodape-form">
+      <button class="botao botao-primario" type="submit">Registrar entrada</button>
+    </div>
+  </form>
+  <section class="cartao">
+    <h2>Estoque atual</h2>
+    <ul class="lista-simples">
+      {% for p in produtos %}
+        <li><span>{{ p.descricao }}</span><span class="{{ 'etiqueta etiqueta-alerta' if p.quantidade_estoque == 0 else ('etiqueta etiqueta-aviso' if p.quantidade_estoque < limite_baixo else 'etiqueta') }}">{{ p.quantidade_estoque }} un.</span></li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+
+<h2 class="titulo-secao">Últimas entradas</h2>
+{% if entradas %}
+<div class="tabela-container">
+  <table>
+    <thead><tr><th>Data</th><th>Produto</th><th class="num">Quantidade</th><th>Registrado por</th></tr></thead>
+    <tbody>
+      {% for e in entradas %}
+      <tr>
+        <td data-rotulo="Data" class="sem-quebra">{{ e.data_hora|data }}</td>
+        <td data-rotulo="Produto">{{ e.descricao }}</td>
+        <td data-rotulo="Quantidade" class="num">+{{ e.quantidade }}</td>
+        <td data-rotulo="Registrado por">{{ e.funcionario }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="vazio"><p>Nenhuma entrada registrada.</p></div>
+{% endif %}
+{% endblock %}

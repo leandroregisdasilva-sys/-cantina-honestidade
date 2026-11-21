@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Início{% endblock %} · Cantina da Honestidade</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="{% block classe_body %}{% endblock %}">
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+  <header class="topo">
+    <div class="topo-conteudo">
+      <a class="marca" href="{{ url_for('inicio') }}">
+        <span class="marca-icone" aria-hidden="true">CH</span>
+        <span>
+          <strong>Cantina da Honestidade</strong>
+          <small>SENAI Friburgo{% if perfil == 'funcionario' %} · Painel do funcionário{% elif perfil == 'usuario' %} · Autoatendimento{% endif %}</small>
+        </span>
+      </a>
+      {% set pagina = request.endpoint or '' %}
+      {% if perfil == 'funcionario' %}
+        <nav aria-label="Menu do funcionário">
+          <a class="{{ 'ativo' if pagina == 'admin.painel' }}"{% if pagina == 'admin.painel' %} aria-current="page"{% endif %} href="{{ url_for('admin.painel') }}">Painel</a>
+          <a class="{{ 'ativo' if pagina.startswith('admin.usuario') }}"{% if pagina.startswith('admin.usuario') %} aria-current="page"{% endif %} href="{{ url_for('admin.usuarios') }}">Usuários</a>
+          <a class="{{ 'ativo' if pagina.startswith('admin.produto') or pagina == 'admin.qrcodes' }}"{% if pagina.startswith('admin.produto') or pagina == 'admin.qrcodes' %} aria-current="page"{% endif %} href="{{ url_for('admin.produtos') }}">Produtos</a>
+          <a class="{{ 'ativo' if pagina == 'admin.estoque' }}"{% if pagina == 'admin.estoque' %} aria-current="page"{% endif %} href="{{ url_for('admin.estoque') }}">Estoque</a>
+          <a class="{{ 'ativo' if pagina == 'admin.relatorios' }}"{% if pagina == 'admin.relatorios' %} aria-current="page"{% endif %} href="{{ url_for('admin.relatorios') }}">Relatórios</a>
+          <a class="{{ 'ativo' if pagina.startswith('admin.funcionario') }}"{% if pagina.startswith('admin.funcionario') %} aria-current="page"{% endif %} href="{{ url_for('admin.funcionarios') }}">Funcionários</a>
+          <a class="sair" href="{{ url_for('sair') }}" title="Sair ({{ nome_logado }})">Sair</a>
+        </nav>
+      {% elif perfil == 'usuario' %}
+        <nav aria-label="Menu do usuário">
+          <a class="{{ 'ativo' if pagina in ('loja.catalogo', 'loja.produto') }}"{% if pagina in ('loja.catalogo', 'loja.produto') %} aria-current="page"{% endif %} href="{{ url_for('loja.catalogo') }}">Produtos</a>
+          <a class="{{ 'ativo' if pagina == 'loja.ver_carrinho' }}"{% if pagina == 'loja.ver_carrinho' %} aria-current="page"{% endif %} href="{{ url_for('loja.ver_carrinho') }}">Carrinho{% if itens_carrinho %} <span class="contador">{{ itens_carrinho }}</span>{% endif %}</a>
+          <a class="{{ 'ativo' if pagina == 'loja.carteira' }}"{% if pagina == 'loja.carteira' %} aria-current="page"{% endif %} href="{{ url_for('loja.carteira') }}">Carteira <span class="saldo-topo">{{ saldo_logado|dinheiro }}</span></a>
+          <a class="{{ 'ativo' if pagina == 'loja.compras' }}"{% if pagina == 'loja.compras' %} aria-current="page"{% endif %} href="{{ url_for('loja.compras') }}">Minhas compras</a>
+          <a class="sair" href="{{ url_for('sair') }}" title="Sair ({{ nome_logado }})">Sair</a>
+        </nav>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="pagina" id="conteudo" tabindex="-1">
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% for categoria, mensagem in mensagens %}
+        <div class="alerta alerta-{{ categoria }}" role="{{ 'alert' if categoria == 'erro' else 'status' }}">{{ mensagem }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  <dialog id="dialogo-confirmar">
+    <h2>Confirmar</h2>
+    <p id="dialogo-texto"></p>
+    <div class="dialogo-botoes">
+      <button class="botao" type="button" data-acao="cancelar">Cancelar</button>
+      <button class="botao botao-perigo" type="button" data-acao="confirmar">Confirmar</button>
+    </div>
+  </dialog>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

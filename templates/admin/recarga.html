@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% block titulo %}Recarga em dinheiro{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <a class="voltar" href="{{ url_for('admin.usuarios') }}">← Voltar para usuários</a>
+    <h1>Recarga em dinheiro</h1>
+    <p class="subtitulo">{{ usuario.nome }} · matrícula {{ usuario.matricula }} · saldo atual <strong>{{ saldo_atual|dinheiro }}</strong></p>
+  </div>
+</div>
+<div class="duas-colunas">
+  <form class="cartao formulario" method="post" novalidate data-validar>
+    <p class="subtitulo">Use quando o usuário entregar o dinheiro no balcão. A recarga fica registrada com o seu nome.</p>
+    {{ campo('valor', 'Valor recebido *', erros, valor, ajuda='De R$ 1,00 a R$ 500,00.', extra='required inputmode="numeric" data-mascara="dinheiro" placeholder="R$ 0,00" data-min="1" data-max="500"') }}
+    <div class="atalhos-valor" aria-label="Valores rápidos">
+      {% for v in ['5,00', '10,00', '20,00', '50,00'] %}<button class="botao botao-pequeno" type="button" data-preencher="valor" data-valor="R$ {{ v }}">R$ {{ v }}</button>{% endfor %}
+    </div>
+    <div class="rodape-form">
+      <a class="botao botao-texto" href="{{ url_for('admin.usuarios') }}">Cancelar</a>
+      <button class="botao botao-primario" type="submit">Registrar recarga</button>
+    </div>
+  </form>
+  <section class="cartao">
+    <h2>Últimas movimentações</h2>
+    {% include "_extrato.html" %}
+  </section>
+</div>
+{% endblock %}

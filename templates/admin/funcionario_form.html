@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% block titulo %}{{ 'Novo funcionário' if novo else 'Alterar funcionário' }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <a class="voltar" href="{{ url_for('admin.funcionarios') }}">← Voltar para funcionários</a>
+    <h1>{{ 'Novo funcionário' if novo else 'Alterar funcionário' }}</h1>
+    <p class="subtitulo">Campos com * são obrigatórios.</p>
+  </div>
+</div>
+<form class="cartao formulario" method="post" novalidate data-validar
+      action="{{ url_for('admin.funcionario_novo') if novo else url_for('admin.funcionario_editar', id_funcionario=funcionario.id_funcionario) }}">
+  <fieldset>
+    <legend>Dados do funcionário</legend>
+    {{ campo('nome', 'Nome completo *', erros, funcionario.get('nome'), ajuda='Nome e sobrenome, só letras.', extra='required maxlength="100" autocomplete="name"') }}
+    <div class="grade-2">
+      {{ campo('cpf', 'CPF *', erros, funcionario.get('cpf'), ajuda='Digite só os números: a máscara é aplicada.', extra='required inputmode="numeric" maxlength="14" placeholder="000.000.000-00" data-mascara="cpf"') }}
+      {{ campo('cargo', 'Cargo *', erros, funcionario.get('cargo'), ajuda='Por exemplo: Gestora da cantina.', extra='required maxlength="50"') }}
+    </div>
+    {{ campo('email', 'E-mail *', erros, funcionario.get('email'), 'email', ajuda='Usado no login do painel.', extra='required maxlength="100" autocomplete="email"') }}
+  </fieldset>
+  <fieldset>
+    <legend>Senha de acesso</legend>
+    <div class="grade-2">
+      {{ campo('senha', 'Senha *' if novo else 'Nova senha', erros, tipo='password',
+               ajuda='Mínimo de 6 caracteres.' if novo else 'Deixe em branco para manter a atual.',
+               extra=('required minlength="6"' if novo else 'minlength="6"') ~ ' maxlength="72" autocomplete="new-password"') }}
+      {{ campo('confirmar_senha', 'Confirmar senha *' if novo else 'Confirmar nova senha', erros, tipo='password',
+               ajuda='Digite a mesma senha novamente.', extra='maxlength="72" autocomplete="new-password"') }}
+    </div>
+  </fieldset>
+  <div class="rodape-form">
+    <a class="botao botao-texto" href="{{ url_for('admin.funcionarios') }}">Cancelar</a>
+    <button class="botao botao-primario" type="submit">{{ 'Cadastrar funcionário' if novo else 'Salvar alterações' }}</button>
+  </div>
+</form>
+{% endblock %}

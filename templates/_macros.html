@@ -1,0 +1,48 @@
+{# Componentes reaproveitados nos formulários: rótulo, campo, mensagem de ajuda ou de erro. #}
+{% macro campo(nome, rotulo, erros, valor='', tipo='text', ajuda='', extra='') -%}
+  <div class="campo {% if erros.get(nome) %}campo-erro{% endif %}">
+    <label for="{{ nome }}">{{ rotulo }}</label>
+    <input id="{{ nome }}" name="{{ nome }}" type="{{ tipo }}"
+           value="{{ '' if tipo == 'password' else (valor or '') }}" {{ extra|safe }}
+           aria-describedby="{{ nome }}-msg" {% if erros.get(nome) %}aria-invalid="true"{% endif %}>
+    <small id="{{ nome }}-msg" class="{{ 'msg-erro' if erros.get(nome) else 'msg-ajuda' }}">{{ erros.get(nome) or ajuda }}</small>
+  </div>
+{%- endmacro %}
+
+{% macro botoes_situacao(ativo, url_inativar, url_reativar, nome) -%}
+  {% if ativo %}
+    <form method="post" action="{{ url_inativar }}"
+          data-confirmar="Inativar {{ nome }}? O cadastro sai de uso, mas o histórico é mantido.">
+      <button class="botao botao-pequeno botao-perigo" type="submit">Inativar</button>
+    </form>
+  {% else %}
+    <form method="post" action="{{ url_reativar }}">
+      <button class="botao botao-pequeno" type="submit">Reativar</button>
+    </form>
+  {% endif %}
+{%- endmacro %}
+
+{% macro filtro_situacao(situacao, rota, busca='', placeholder='Buscar') -%}
+  <form class="filtros" method="get" action="{{ url_for(rota) }}">
+    {% if busca is not none %}
+      <input type="search" name="busca" value="{{ busca }}" placeholder="{{ placeholder }}" aria-label="{{ placeholder }}">
+    {% endif %}
+    <select name="situacao" aria-label="Situação">
+      <option value="ativos" {% if situacao == 'ativos' %}selected{% endif %}>Ativos</option>
+      <option value="inativos" {% if situacao == 'inativos' %}selected{% endif %}>Inativos</option>
+      <option value="todos" {% if situacao == 'todos' %}selected{% endif %}>Todos</option>
+    </select>
+    <button class="botao" type="submit">Filtrar</button>
+    {% if busca or situacao != 'ativos' %}
+      <a class="botao botao-texto" href="{{ url_for(rota) }}">Limpar</a>
+    {% endif %}
+  </form>
+{%- endmacro %}
+
+{% macro foto(produto, classe='foto') -%}
+  {% if produto.foto_url %}
+    <img class="{{ classe }}" src="{{ url_for('static', filename='uploads/' ~ produto.foto_url) }}" alt="{{ produto.descricao }}">
+  {% else %}
+    <div class="{{ classe }} foto-vazia" aria-hidden="true">sem foto</div>
+  {% endif %}
+{%- endmacro %}

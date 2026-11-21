@@ -1,0 +1,22 @@
+{# Extrato da carteira. Espera `extrato`. #}
+{% if extrato %}
+  <ul class="extrato">
+    {% for t in extrato %}
+      <li>
+        <span>
+          {% if t.tipo_transacao == 'CREDITO' %}
+            Recarga {{ 'em dinheiro com ' ~ t.funcionario if t.funcionario else 'online' }}
+          {% else %}
+            Compra na cantina
+          {% endif %}
+          <small class="subtitulo">{{ t.data_hora|data }}</small>
+        </span>
+        <strong class="{{ 'valor-credito' if t.tipo_transacao == 'CREDITO' else 'valor-debito' }}">
+          {{ '+' if t.tipo_transacao == 'CREDITO' else '−' }} {{ t.valor|dinheiro }}
+        </strong>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="subtitulo">Nenhuma movimentação ainda.</p>
+{% endif %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo, foto %}
+{% block titulo %}{{ 'Novo produto' if novo else 'Alterar produto' }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <a class="voltar" href="{{ url_for('admin.produtos') }}">← Voltar para produtos</a>
+    <h1>{{ 'Novo produto' if novo else 'Alterar produto' }}</h1>
+    <p class="subtitulo">Campos com * são obrigatórios.</p>
+  </div>
+</div>
+<form class="cartao formulario" method="post" enctype="multipart/form-data" novalidate data-validar
+      action="{{ url_for('admin.produto_novo') if novo else url_for('admin.produto_editar', id_produto=produto.id_produto) }}">
+  <fieldset>
+    <legend>Dados do produto</legend>
+    {{ campo('descricao', 'Descrição *', erros, produto.get('descricao'), ajuda='Nome e tamanho, por exemplo: Batata Chips 45g.', extra='required minlength="3" maxlength="150"') }}
+    <div class="grade-2">
+      {{ campo('preco', 'Preço *', erros, produto.get('preco'), ajuda='Até R$ 999,99.', extra='required inputmode="numeric" data-mascara="dinheiro" placeholder="R$ 0,00" data-min="0.01" data-max="999.99"') }}
+      {% if novo %}
+        {{ campo('estoque_inicial', 'Estoque inicial', erros, produto.get('estoque_inicial'), ajuda='Unidades já na prateleira. Opcional.', extra='inputmode="numeric" maxlength="4" data-mascara="inteiro" placeholder="0" data-max="9999"') }}
+      {% else %}
+        <div class="campo">
+          <label>Estoque atual</label>
+          <p class="valor-fixo">{{ produto.get('quantidade_estoque') }} un.</p>
+          <small class="msg-ajuda">Para repor, use a tela <a href="{{ url_for('admin.estoque') }}">Estoque</a>.</small>
+        </div>
+      {% endif %}
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Foto</legend>
+    <div class="foto-campo">
+      <div id="previa-foto">{{ foto(produto, 'foto-previa') }}</div>
+      <div class="campo {% if erros.get('foto') %}campo-erro{% endif %}">
+        <label for="foto">{{ 'Foto do produto' if novo else 'Trocar foto' }}</label>
+        <input id="foto" name="foto" type="file" accept=".png,.jpg,.jpeg,.webp" data-previa="previa-foto" aria-describedby="foto-msg">
+        <small id="foto-msg" class="{{ 'msg-erro' if erros.get('foto') else 'msg-ajuda' }}">{{ erros.get('foto') or 'PNG, JPG ou WEBP de até 2 MB.' }}</small>
+      </div>
+    </div>
+  </fieldset>
+  <div class="rodape-form">
+    <a class="botao botao-texto" href="{{ url_for('admin.produtos') }}">Cancelar</a>
+    <button class="botao botao-primario" type="submit">{{ 'Cadastrar produto' if novo else 'Salvar alterações' }}</button>
+  </div>
+</form>
+{% endblock %}

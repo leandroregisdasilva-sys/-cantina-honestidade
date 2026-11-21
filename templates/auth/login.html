@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% block titulo %}Entrar{% endblock %}
+{% block classe_body %}tela-login{% endblock %}
+{% block conteudo %}
+<div class="login-grade">
+  <section class="login-texto">
+    <h1>Pegue, registre, siga em frente.</h1>
+    <p>A cantina continua no autoatendimento. Agora cada compra sai da sua carteira virtual, sem troco e sem caixinha.</p>
+    <ul class="lista-passos">
+      <li><strong>1.</strong> Adicione créditos na carteira</li>
+      <li><strong>2.</strong> Escolha o lanche ou leia o QR Code da prateleira</li>
+      <li><strong>3.</strong> Finalize: o valor sai do saldo na hora</li>
+    </ul>
+  </section>
+
+  <section class="cartao login-cartao">
+    <div class="abas" aria-label="Tipo de acesso">
+      <a class="aba {{ 'aba-ativa' if perfil_login == 'usuario' }}"{% if perfil_login == 'usuario' %} aria-current="page"{% endif %}
+         href="{{ url_for('login', perfil='usuario', proximo=proximo) }}">Sou aluno ou colaborador</a>
+      <a class="aba {{ 'aba-ativa' if perfil_login == 'funcionario' }}"{% if perfil_login == 'funcionario' %} aria-current="page"{% endif %}
+         href="{{ url_for('login', perfil='funcionario', proximo=proximo) }}">Sou funcionário da cantina</a>
+    </div>
+    <form method="post" novalidate data-validar action="{{ url_for('login') }}">
+      <input type="hidden" name="perfil" value="{{ perfil_login }}">
+      <input type="hidden" name="proximo" value="{{ proximo }}">
+      {{ campo('login', 'Matrícula, e-mail ou CPF *' if perfil_login == 'usuario' else 'E-mail ou CPF *', erros,
+               login_digitado, ajuda='Use o mesmo dado do seu cadastro.', extra='required autocomplete="username" autofocus') }}
+      {{ campo('senha', 'Senha *', erros, tipo='password', ajuda='', extra='required autocomplete="current-password"') }}
+      <button class="botao botao-primario botao-largo" type="submit">Entrar</button>
+    </form>
+    {% if perfil_login == 'usuario' %}
+      <p class="login-rodape">Ainda não tem conta? <a href="{{ url_for('cadastro') }}">Cadastre-se</a></p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "_macros.html" import foto %}
+{% block titulo %}Carrinho{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <a class="voltar" href="{{ url_for('loja.catalogo') }}">← Continuar escolhendo</a>
+    <h1>Carrinho</h1>
+  </div>
+</div>
+
+{% if itens %}
+<div class="duas-colunas carrinho-grade">
+  <section class="cartao">
+    <ul class="itens-carrinho">
+      {% for item in itens %}
+        {% set p = item.produto %}
+        <li>
+          {{ foto(p, 'miniatura') }}
+          <div class="item-info">
+            <strong>{{ p.descricao }}</strong>
+            <small class="subtitulo">{{ p.preco|dinheiro }} cada</small>
+          </div>
+          <form method="post" action="{{ url_for('loja.alterar', id_produto=p.id_produto) }}" class="item-qtd">
+            <label class="oculto" for="qtd-{{ p.id_produto }}">Quantidade de {{ p.descricao }}</label>
+            <input id="qtd-{{ p.id_produto }}" name="quantidade" value="{{ item.quantidade }}" inputmode="numeric"
+                   data-mascara="inteiro" maxlength="2" data-enviar-ao-mudar>
+            <button class="botao botao-pequeno" type="submit">Atualizar</button>
+          </form>
+          <strong class="item-subtotal">{{ item.subtotal|dinheiro }}</strong>
+          <form method="post" action="{{ url_for('loja.alterar', id_produto=p.id_produto) }}">
+            <input type="hidden" name="quantidade" value="0">
+            <button class="botao botao-pequeno botao-perigo" type="submit" aria-label="Remover {{ p.descricao }}">Remover</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <aside class="cartao resumo-compra">
+    <h2>Resumo</h2>
+    <dl>
+      <div><dt>Total da compra</dt><dd>{{ total|dinheiro }}</dd></div>
+      <div><dt>Seu saldo</dt><dd>{{ saldo_atual|dinheiro }}</dd></div>
+      <div class="linha-total"><dt>Saldo depois da compra</dt><dd>{{ (saldo_atual - total)|dinheiro if falta == 0 else '—' }}</dd></div>
+    </dl>
+    {% if falta > 0 %}
+      <p class="alerta alerta-erro">Faltam {{ falta|dinheiro }} de saldo para esta compra.</p>
+      <a class="botao botao-primario botao-largo" href="{{ url_for('loja.carteira') }}">Adicionar créditos</a>
+    {% else %}
+      <form method="post" action="{{ url_for('loja.finalizar') }}"
+            data-confirmar="Confirmar a compra de {{ total|dinheiro }}? O valor sai do seu saldo na hora.">
+        <button class="botao botao-primario botao-largo" type="submit">Finalizar compra</button>
+      </form>
+    {% endif %}
+  </aside>
+</div>
+{% else %}
+<div class="vazio">
+  <p><strong>Seu carrinho está vazio.</strong></p>
+  <p>Escolha um lanche no catálogo ou leia o QR Code da prateleira.</p>
+  <p><a class="botao botao-primario" href="{{ url_for('loja.catalogo') }}">Ver produtos</a></p>
+</div>
+{% endif %}
+{% endblock %}

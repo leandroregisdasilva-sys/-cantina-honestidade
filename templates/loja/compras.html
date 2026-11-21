@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titulo %}Minhas compras{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1>Minhas compras</h1>
+    <p class="subtitulo">{{ vendas|length }} compra(s) registradas.</p>
+  </div>
+</div>
+{% if vendas %}
+  <div class="lista-compras">
+    {% for v in vendas %}
+      <article class="cartao compra">
+        <header>
+          <div><strong>Compra nº {{ v.id_venda }}</strong> <small class="subtitulo">{{ v.data_hora|data }}</small></div>
+          <strong>{{ v.valor_total|dinheiro }}</strong>
+        </header>
+        <ul class="lista-simples">
+          {% for i in itens[v.id_venda] %}
+            <li><span>{{ i.quantidade }} × {{ i.descricao }}</span><span>{{ (i.quantidade * i.preco_unitario)|dinheiro }}</span></li>
+          {% endfor %}
+        </ul>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="vazio"><p><strong>Você ainda não fez compras.</strong></p><p><a class="botao botao-primario" href="{{ url_for('loja.catalogo') }}">Ver produtos</a></p></div>
+{% endif %}
+{% endblock %}

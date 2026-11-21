@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block titulo %}Relatórios{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1>Relatórios</h1>
+    <p class="subtitulo">Vendas, consumo e movimentações da carteira no período.</p>
+  </div>
+</div>
+
+<form class="filtros" method="get" action="{{ url_for('admin.relatorios') }}" novalidate>
+  <div class="campo-inline {% if erros.get('de') %}campo-erro{% endif %}">
+    <label for="de">De</label><input id="de" name="de" type="date" value="{{ de }}" required>
+  </div>
+  <div class="campo-inline {% if erros.get('ate') %}campo-erro{% endif %}">
+    <label for="ate">Até</label><input id="ate" name="ate" type="date" value="{{ ate }}" required>
+  </div>
+  <button class="botao botao-primario" type="submit">Atualizar</button>
+  {% for e in erros.values() %}<small class="msg-erro">{{ e }}</small>{% endfor %}
+</form>
+
+<div class="indicadores">
+  <div class="indicador"><span>Total vendido</span><strong>{{ resumo.total|dinheiro }}</strong><small>{{ resumo.vendas }} compra(s)</small></div>
+  <div class="indicador"><span>Ticket médio</span><strong>{{ resumo.ticket|dinheiro }}</strong><small>por compra</small></div>
+  <div class="indicador"><span>Recargas em dinheiro</span><strong>{{ carteira.dinheiro|dinheiro }}</strong><small>no balcão</small></div>
+  <div class="indicador"><span>Recargas online</span><strong>{{ carteira.online|dinheiro }}</strong><small>feitas pelo usuário</small></div>
+</div>
+
+<div class="duas-colunas">
+  <section>
+    <h2 class="titulo-secao">Produtos mais vendidos</h2>
+    {% if mais_vendidos %}
+    <div class="tabela-container"><table>
+      <thead><tr><th>Produto</th><th class="num">Unidades</th><th class="num">Valor</th></tr></thead>
+      <tbody>{% for p in mais_vendidos %}<tr><td>{{ p.descricao }}</td><td class="num">{{ p.unidades }}</td><td class="num sem-quebra">{{ p.valor|dinheiro }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<div class="vazio"><p>Sem vendas no período.</p></div>{% endif %}
+  </section>
+  <section>
+    <h2 class="titulo-secao">Consumo por usuário</h2>
+    {% if consumo %}
+    <div class="tabela-container"><table>
+      <thead><tr><th>Usuário</th><th class="num">Compras</th><th class="num">Total</th></tr></thead>
+      <tbody>{% for c in consumo %}<tr><td>{{ c.nome }} <small class="subtitulo">{{ c.matricula }}</small></td><td class="num">{{ c.compras }}</td><td class="num sem-quebra">{{ c.total|dinheiro }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<div class="vazio"><p>Sem consumo no período.</p></div>{% endif %}
+  </section>
+</div>
+
+<h2 class="titulo-secao">Vendas do período</h2>
+{% if vendas %}
+<div class="tabela-container"><table>
+  <thead><tr><th>Nº</th><th>Data</th><th>Usuário</th><th class="num">Valor</th></tr></thead>
+  <tbody>{% for v in vendas %}<tr><td data-rotulo="Nº">{{ v.id_venda }}</td><td data-rotulo="Data" class="sem-quebra">{{ v.data_hora|data }}</td><td data-rotulo="Usuário">{{ v.nome }}</td><td data-rotulo="Valor" class="num sem-quebra">{{ v.valor_total|dinheiro }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<div class="vazio"><p>Nenhuma venda no período.</p></div>{% endif %}
+<p class="subtitulo rodape-relatorio">Débitos na carteira no período: {{ carteira.debitos|dinheiro }} (igual ao total vendido).</p>
+{% endblock %}

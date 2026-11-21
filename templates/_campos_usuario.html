@@ -1,0 +1,22 @@
+{# Campos do cadastro de usuário, usados no autocadastro e no painel do funcionário. Espera `usuario`, `erros` e `novo`. #}
+{% from "_macros.html" import campo %}
+{% set novo = novo if novo is defined else true %}
+<fieldset>
+  <legend>Dados pessoais</legend>
+  {{ campo('nome', 'Nome completo *', erros, usuario.get('nome'), ajuda='Nome e sobrenome, só letras.', extra='required maxlength="100" autocomplete="name"') }}
+  <div class="grade-2">
+    {{ campo('cpf', 'CPF *', erros, usuario.get('cpf'), ajuda='Digite só os números: a máscara é aplicada.', extra='required inputmode="numeric" maxlength="14" placeholder="000.000.000-00" data-mascara="cpf"') }}
+    {{ campo('matricula', 'Matrícula *', erros, usuario.get('matricula'), ajuda='De 3 a 20 letras ou números.', extra='required maxlength="20" data-mascara="matricula"') }}
+  </div>
+  {{ campo('email', 'E-mail *', erros, usuario.get('email'), 'email', ajuda='Usado no login e nos avisos da carteira.', extra='required maxlength="100" autocomplete="email"') }}
+</fieldset>
+<fieldset>
+  <legend>Senha de acesso</legend>
+  <div class="grade-2">
+    {{ campo('senha', 'Senha *' if novo else 'Nova senha', erros, tipo='password',
+             ajuda='Mínimo de 6 caracteres.' if novo else 'Deixe em branco para manter a atual.',
+             extra=('required minlength="6"' if novo else 'minlength="6"') ~ ' maxlength="72" autocomplete="new-password"') }}
+    {{ campo('confirmar_senha', 'Confirmar senha *' if novo else 'Confirmar nova senha', erros, tipo='password',
+             ajuda='Digite a mesma senha novamente.', extra='maxlength="72" autocomplete="new-password"') }}
+  </div>
+</fieldset>

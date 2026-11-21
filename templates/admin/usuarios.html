@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "_macros.html" import botoes_situacao, filtro_situacao %}
+{% block titulo %}Usuários{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1>Usuários</h1>
+    <p class="subtitulo">{{ totais.ativos or 0 }} ativos · {{ totais.inativos or 0 }} inativos</p>
+  </div>
+  <a class="botao botao-primario" href="{{ url_for('admin.usuario_novo') }}">+ Novo usuário</a>
+</div>
+
+{{ filtro_situacao(situacao, 'admin.usuarios', busca, 'Buscar por nome, matrícula, e-mail ou CPF') }}
+
+{% if usuarios %}
+<div class="tabela-container">
+  <table>
+    <thead><tr><th>Nome</th><th>Matrícula</th><th>E-mail</th><th>CPF</th><th class="num">Saldo</th><th>Situação</th><th class="acoes-col">Ações</th></tr></thead>
+    <tbody>
+      {% for u in usuarios %}
+      <tr class="{% if not u.ativo %}linha-inativa{% endif %}">
+        <td data-rotulo="Nome"><strong>{{ u.nome }}</strong></td>
+        <td data-rotulo="Matrícula">{{ u.matricula }}</td>
+        <td data-rotulo="E-mail">{{ u.email }}</td>
+        <td data-rotulo="CPF" class="sem-quebra">{{ u.cpf|cpf }}</td>
+        <td data-rotulo="Saldo" class="num sem-quebra">{{ saldos[u.id_usuario]|dinheiro }}</td>
+        <td data-rotulo="Situação"><span class="situacao {{ 'situacao-ativa' if u.ativo else 'situacao-inativa' }}">{{ 'Ativo' if u.ativo else 'Inativo' }}</span></td>
+        <td class="acoes-col"><div class="acoes">
+          {% if u.ativo %}<a class="botao botao-pequeno" href="{{ url_for('admin.usuario_recarga', id_usuario=u.id_usuario) }}">Recarga</a>{% endif %}
+          <a class="botao botao-pequeno" href="{{ url_for('admin.usuario_editar', id_usuario=u.id_usuario) }}">Alterar</a>
+          {{ botoes_situacao(u.ativo, url_for('admin.usuario_inativar', id_usuario=u.id_usuario), url_for('admin.usuario_reativar', id_usuario=u.id_usuario), u.nome) }}
+        </div></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="vazio"><p><strong>Nenhum usuário encontrado.</strong></p><p>Tente outro termo de busca ou mude o filtro de situação.</p></div>
+{% endif %}
+{% endblock %}

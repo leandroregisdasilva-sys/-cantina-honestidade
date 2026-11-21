@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% block titulo %}Carteira{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1>Carteira</h1>
+    <p class="subtitulo">Créditos para comprar sem precisar de troco.</p>
+  </div>
+</div>
+<div class="duas-colunas">
+  <div class="coluna">
+    <section class="cartao saldo-cartao">
+      <span>Saldo disponível</span>
+      <strong>{{ saldo_atual|dinheiro }}</strong>
+    </section>
+    <form class="cartao formulario" method="post" novalidate data-validar>
+      <h2>Adicionar créditos</h2>
+      <p class="subtitulo">Recarga online simulada (Pix). Em dinheiro, procure um funcionário da cantina.</p>
+      {{ campo('valor', 'Valor *', erros, valor, ajuda='De R$ 1,00 a R$ 500,00.', extra='required inputmode="numeric" data-mascara="dinheiro" placeholder="R$ 0,00" data-min="1" data-max="500"') }}
+      <div class="atalhos-valor" aria-label="Valores rápidos">
+        {% for v in ['5,00', '10,00', '20,00', '50,00'] %}<button class="botao botao-pequeno" type="button" data-preencher="valor" data-valor="R$ {{ v }}">R$ {{ v }}</button>{% endfor %}
+      </div>
+      <div class="rodape-form"><button class="botao botao-primario" type="submit">Adicionar créditos</button></div>
+    </form>
+  </div>
+  <section class="cartao">
+    <h2>Extrato</h2>
+    {% include "_extrato.html" %}
+  </section>
+</div>
+{% endblock %}

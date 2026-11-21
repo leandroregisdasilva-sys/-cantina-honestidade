@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}QR Codes{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina sem-impressao">
+  <div>
+    <a class="voltar" href="{{ url_for('admin.produtos') }}">← Voltar para produtos</a>
+    <h1>QR Codes dos produtos</h1>
+    <p class="subtitulo">Imprima e cole na prateleira. O consumidor lê com a câmera e cai direto no produto para comprar.</p>
+  </div>
+  <button class="botao botao-primario" type="button" data-imprimir>Imprimir</button>
+</div>
+<div class="grade-qr">
+  {% for produto, svg, endereco in codigos %}
+    <figure class="qr">
+      <div class="qr-imagem">{{ svg|safe }}</div>
+      <figcaption><strong>{{ produto.descricao }}</strong><span>{{ produto.preco|dinheiro }}</span></figcaption>
+    </figure>
+  {% else %}
+    <p class="subtitulo">Nenhum produto ativo.</p>
+  {% endfor %}
+</div>
+{% endblock %}

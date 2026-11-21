@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import foto %}
+{% block titulo %}{{ produto.descricao }}{% endblock %}
+{% block conteudo %}
+<a class="voltar" href="{{ url_for('loja.catalogo') }}">← Todos os produtos</a>
+<div class="produto-detalhe cartao">
+  {{ foto(produto, 'foto-grande') }}
+  <div>
+    <h1>{{ produto.descricao }}</h1>
+    <p class="preco preco-grande">{{ produto.preco|dinheiro }}</p>
+    {% if produto.quantidade_estoque == 0 %}
+      <p class="alerta alerta-erro">Esgotado no momento.</p>
+    {% else %}
+      <p class="subtitulo">{{ produto.quantidade_estoque }} disponíveis{% if no_carrinho %} · {{ no_carrinho }} no seu carrinho{% endif %}</p>
+      <form method="post" action="{{ url_for('loja.adicionar', id_produto=produto.id_produto) }}" class="form-quantidade" novalidate data-validar>
+        <input type="hidden" name="voltar" value="{{ url_for('loja.ver_carrinho') }}">
+        <div class="campo">
+          <label for="quantidade">Quantidade</label>
+          <div class="contador-qtd">
+            <button type="button" class="botao" data-passo="-1" aria-label="Diminuir">−</button>
+            <input id="quantidade" name="quantidade" value="1" inputmode="numeric" data-mascara="inteiro" required
+                   data-min="1" data-max="{{ [produto.quantidade_estoque, 20]|min }}" maxlength="2" aria-describedby="quantidade-msg">
+            <button type="button" class="botao" data-passo="1" aria-label="Aumentar">+</button>
+          </div>
+          <small id="quantidade-msg" class="msg-ajuda">Até {{ [produto.quantidade_estoque, 20]|min }} unidades.</small>
+        </div>
+        <button class="botao botao-primario botao-largo" type="submit">Adicionar ao carrinho</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

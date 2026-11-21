@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_macros.html" import foto %}
+{% block titulo %}Produtos{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1>O que vai ser hoje?</h1>
+    <p class="subtitulo">Saldo disponível: <strong>{{ saldo_logado|dinheiro }}</strong> · <a href="{{ url_for('loja.carteira') }}">adicionar créditos</a></p>
+  </div>
+  {% if itens_carrinho %}<a class="botao botao-primario" href="{{ url_for('loja.ver_carrinho') }}">Ver carrinho ({{ itens_carrinho }})</a>{% endif %}
+</div>
+
+<form class="filtros" method="get" action="{{ url_for('loja.catalogo') }}">
+  <input type="search" name="busca" value="{{ busca }}" placeholder="Buscar produto" aria-label="Buscar produto">
+  <button class="botao" type="submit">Buscar</button>
+  {% if busca %}<a class="botao botao-texto" href="{{ url_for('loja.catalogo') }}">Limpar</a>{% endif %}
+</form>
+
+{% if produtos %}
+<div class="grade-produtos">
+  {% for p in produtos %}
+    {% set esgotado = p.quantidade_estoque == 0 %}
+    <article class="produto {{ 'produto-esgotado' if esgotado }}">
+      <a href="{{ url_for('loja.produto', id_produto=p.id_produto) }}" class="produto-foto">{{ foto(p, 'foto') }}</a>
+      <div class="produto-corpo">
+        <h2><a href="{{ url_for('loja.produto', id_produto=p.id_produto) }}">{{ p.descricao }}</a></h2>
+        <div class="produto-linha-preco">
+          <strong class="preco">{{ p.preco|dinheiro }}</strong>
+          <small class="subtitulo">{{ 'Esgotado' if esgotado else p.quantidade_estoque ~ ' disponíveis' }}</small>
+        </div>
+        {% if not esgotado %}
+        <form method="post" action="{{ url_for('loja.adicionar', id_produto=p.id_produto) }}" class="form-adicionar">
+          <input type="hidden" name="quantidade" value="1">
+          <input type="hidden" name="voltar" value="{{ request.full_path }}">
+          <button class="botao botao-primario botao-largo" type="submit">Adicionar{% if no_carrinho.get(p.id_produto|string) %} ({{ no_carrinho[p.id_produto|string] }} no carrinho){% endif %}</button>
+        </form>
+        {% endif %}
+      </div>
+    </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="vazio"><p><strong>Nenhum produto encontrado.</strong></p><p>Tente outro nome.</p></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "_macros.html" import botoes_situacao, filtro_situacao, foto %}
+{% block titulo %}Produtos{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1>Produtos</h1>
+    <p class="subtitulo">Catálogo exibido no autoatendimento.</p>
+  </div>
+  <div class="acoes-topo">
+    <a class="botao" href="{{ url_for('admin.qrcodes') }}">QR Codes para imprimir</a>
+    <a class="botao botao-primario" href="{{ url_for('admin.produto_novo') }}">+ Novo produto</a>
+  </div>
+</div>
+
+{{ filtro_situacao(situacao, 'admin.produtos', busca, 'Buscar produto') }}
+
+{% if produtos %}
+<div class="tabela-container">
+  <table>
+    <thead><tr><th>Produto</th><th class="num">Preço</th><th class="num">Estoque</th><th>Situação</th><th class="acoes-col">Ações</th></tr></thead>
+    <tbody>
+      {% for p in produtos %}
+      <tr class="{% if not p.ativo %}linha-inativa{% endif %}">
+        <td data-rotulo="Produto"><div class="produto-linha">{{ foto(p, 'miniatura') }}<strong>{{ p.descricao }}</strong></div></td>
+        <td data-rotulo="Preço" class="num sem-quebra">{{ p.preco|dinheiro }}</td>
+        <td data-rotulo="Estoque" class="num">
+          <span class="{{ 'etiqueta etiqueta-alerta' if p.quantidade_estoque == 0 else ('etiqueta etiqueta-aviso' if p.quantidade_estoque < limite_baixo else '') }}">{{ p.quantidade_estoque }} un.</span>
+        </td>
+        <td data-rotulo="Situação"><span class="situacao {{ 'situacao-ativa' if p.ativo else 'situacao-inativa' }}">{{ 'Ativo' if p.ativo else 'Inativo' }}</span></td>
+        <td class="acoes-col"><div class="acoes">
+          <a class="botao botao-pequeno" href="{{ url_for('admin.produto_editar', id_produto=p.id_produto) }}">Alterar</a>
+          {{ botoes_situacao(p.ativo, url_for('admin.produto_inativar', id_produto=p.id_produto), url_for('admin.produto_reativar', id_produto=p.id_produto), p.descricao) }}
+        </div></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="vazio"><p><strong>Nenhum produto encontrado.</strong></p><p>Tente outro termo de busca ou mude o filtro de situação.</p></div>
+{% endif %}
+{% endblock %}
